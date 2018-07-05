@@ -89,3 +89,15 @@ void gbuff_insert(struct gbuff *buff, size_t start, size_t len, const char *src)
     memcpy(buff->base + start, src, len);
     buff->gap_start += len;
 }
+
+
+
+void gbuff_erase(struct gbuff *buff, size_t start, size_t len) {
+    if (start <= buff->gap_start && start+len >= buff->gap_start) {
+        buff->gap_end = (start + len) + (buff->gap_end - buff->gap_start);
+        buff->gap_start = start;
+    } else {
+        gap_to(buff, start);
+        buff->gap_end += len;
+    }
+}
