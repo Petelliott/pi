@@ -101,3 +101,17 @@ void gbuff_erase(struct gbuff *buff, size_t start, size_t len) {
         buff->gap_end += len;
     }
 }
+
+//TODO: gbuff_get()
+
+
+void gbuff_add(struct gbuff *buff, size_t idx, char ch) {
+    //TODO: specialized function
+    gbuff_insert(buff, idx, 1, &ch);
+}
+
+
+void gbuff_del(struct gbuff *buff, size_t idx) {
+    //TODO: specialized function maybe
+    gbuff_erase(buff, idx, 1);
+}
