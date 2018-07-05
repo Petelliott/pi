@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "buffer.h"
 #include <string.h>
+#include <ctype.h>
 
 
 void print_gapstr(struct gapstr g) {
@@ -14,6 +15,20 @@ void print_gapstr(struct gapstr g) {
     if (g.len2 > 0) {
         write(STDOUT_FILENO, g.part2, g.len2);
     }
+    printf("\n");
+}
+
+void write_buff(const struct gbuff *buff) {
+    printf("\"");
+    for (int i = 0; i < buff->len; ++i) {
+        char ch = buff->base[i];
+        if (isprint(ch)) {
+            putchar(ch);
+        } else {
+            putchar('?');
+        }
+    }
+    printf("\"\n");
 }
 
 int main(int argc, char* argv[]) {
@@ -31,25 +46,20 @@ int main(int argc, char* argv[]) {
     struct gbuff buff;
     gbuff_creat(&buff, 8);
 
-    char test[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-    memcpy(buff.base, test, 8);
+    while (1) {
+        size_t idx;
+        char in_buffer[1024];
 
-    buff.gap_start = 3;
-    buff.gap_end   = 6;
+        scanf("%li", &idx);
+        fgets(in_buffer, 1024, stdin);
+        strtok(in_buffer, "\n");
 
-    write(STDOUT_FILENO, buff.base, 8);
-    printf("\n");
+        gbuff_insert(&buff, idx, strlen(in_buffer), in_buffer);
 
-    print_gapstr(gbuff_read(&buff, 0, 2));
-    printf("\n");
-    print_gapstr(gbuff_read(&buff, 3, 2));
-    printf("\n");
-    print_gapstr(gbuff_read(&buff, 0, 5));
-    printf("\n");
-    struct gapstr str = gbuff_read(&buff, 0, 200);
-    print_gapstr(str);
-    printf("\n");
-    printf("%i\n", str.len2);
+        print_gapstr(gbuff_read(&buff, 0, -1));
+        write_buff(&buff);
+
+    }
 
     gbuff_free(&buff);
     return 0;

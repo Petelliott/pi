@@ -3,11 +3,12 @@
 #include <string.h>
 
 
-void gbuff_creat(struct gbuff *buff, size_t init_len) {
-    buff->base = malloc(init_len);
-    buff->len = init_len;
+void gbuff_creat(struct gbuff *buff, size_t gap_size) {
+    buff->base = malloc(gap_size);
+    buff->len = gap_size;
     buff->gap_start = 0;
-    buff->gap_end = init_len;
+    buff->gap_end = gap_size;
+    buff->gap_size = gap_size;
 }
 
 
@@ -22,6 +23,10 @@ void gbuff_free(struct gbuff *buff) {
 
 struct gapstr gbuff_read(struct gbuff *buff, size_t start, size_t len) {
     struct gapstr res = {0};
+
+    if (len == -1) {
+        len = buff->len - (buff->gap_end - buff->gap_start);
+    }
 
     if (start < buff->gap_start) {
         res.part1 = buff->base + start;
@@ -69,9 +74,18 @@ static void gap_to(struct gbuff *buff, size_t loc) {
 }
 
 
-int gbuff_insert(struct gbuff *buff, size_t start, size_t len, const char *src) {
-    if (len > buff->gap_start - buff->gap_end) {
-        //TODO: realloc
+void gbuff_insert(struct gbuff *buff, size_t start, size_t len, const char *src) {
+    size_t gap_len = buff->gap_end - buff->gap_start;
+    if (len > gap_len) {
+        size_t extra_len = len + (buff->gap_size - gap_len);
+        gap_to(buff, buff->len - gap_len);
+        buff->base = realloc(buff->base, buff->len + extra_len);
+        buff->gap_end += extra_len;
+        buff->len += extra_len;
     }
 
+    gap_to(buff, start);
+    // start == buff->gap_start
+    memcpy(buff->base + start, src, len);
+    buff->gap_start += len;
 }
