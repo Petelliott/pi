@@ -28,7 +28,8 @@ int main(int argc, char* argv[]) {
     cleanup();
     */
 
-    struct gbuff buff = gbuff_creat(8);
+    struct gbuff buff;
+    gbuff_creat(&buff, 8);
 
     char test[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
     memcpy(buff.base, test, 8);
@@ -47,5 +48,6 @@ int main(int argc, char* argv[]) {
     printf("\n");
     printf("%i\n", str.len2);
 
+    gbuff_free(&buff);
     return 0;
 }

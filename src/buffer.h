@@ -17,7 +17,7 @@ struct gapstr {
     size_t len2;
 };
 
-struct gbuff gbuff_creat(size_t init_len);
+void gbuff_creat(struct gbuff *buff, size_t init_len);
 void gbuff_free(struct gbuff *buff);
 
 struct gapstr gbuff_read(struct gbuff *buff, size_t start, size_t len);

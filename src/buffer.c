@@ -2,13 +2,11 @@
 #include <stdlib.h>
 
 
-struct gbuff gbuff_creat(size_t init_len) {
-    struct gbuff buff;
-    buff.base = malloc(init_len);
-    buff.len = init_len;
-    buff.gap_start = 0;
-    buff.gap_end = init_len;
-    return buff;
+void gbuff_creat(struct gbuff *buff, size_t init_len) {
+    buff->base = malloc(init_len);
+    buff->len = init_len;
+    buff->gap_start = 0;
+    buff->gap_end = init_len;
 }
 
 
@@ -44,3 +42,6 @@ struct gapstr gbuff_read(struct gbuff *buff, size_t start, size_t len) {
 
     return res;
 }
+
+
+
