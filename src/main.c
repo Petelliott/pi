@@ -42,8 +42,10 @@ int main(int argc, char* argv[]) {
     printf("\n");
     print_gapstr(gbuff_read(&buff, 0, 5));
     printf("\n");
-    print_gapstr(gbuff_read(&buff, 0, 200));
+    struct gapstr str = gbuff_read(&buff, 0, 200);
+    print_gapstr(str);
     printf("\n");
+    printf("%i\n", str.len2);
 
     return 0;
 }
