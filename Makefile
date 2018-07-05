@@ -11,7 +11,10 @@ bin/%.o: src/%.c | bin
 bin:
 	mkdir bin
 
-.PHONY: clean
+.PHONY: clean debug
+
+debug: CC=gcc -g
+debug: clean pi
 
 clean:
 	rm -r bin || true

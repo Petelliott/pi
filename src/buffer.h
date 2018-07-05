@@ -21,7 +21,7 @@ void gbuff_creat(struct gbuff *buff, size_t init_len);
 void gbuff_free(struct gbuff *buff);
 
 struct gapstr gbuff_read(struct gbuff *buff, size_t start, size_t len);
-int gbuff_write(struct gbuff *buff, size_t start, size_t len, const char *src);
+int gbuff_insert(struct gbuff *buff, size_t start, size_t len, const char *src);
 int gbuff_erase(struct gbuff *buff, size_t start, size_t len);
 
 char buff_get(struct gbuff *buff, size_t idx);

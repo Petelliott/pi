@@ -37,9 +37,12 @@ int main(int argc, char* argv[]) {
     buff.gap_start = 3;
     buff.gap_end   = 6;
 
+    write(STDOUT_FILENO, buff.base, 8);
+    printf("\n");
+
     print_gapstr(gbuff_read(&buff, 0, 2));
     printf("\n");
-    print_gapstr(gbuff_read(&buff, 6, 2));
+    print_gapstr(gbuff_read(&buff, 3, 2));
     printf("\n");
     print_gapstr(gbuff_read(&buff, 0, 5));
     printf("\n");
