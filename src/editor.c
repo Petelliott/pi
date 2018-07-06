@@ -8,6 +8,8 @@ void pi_edit(struct gbuff *buff) {
 
     init();
 
+    pi_redraw(buff, crsr);
+
     int c;
     while ((c=ugetchar()) != 3) {
         if (c == '\e') {
@@ -32,6 +34,7 @@ void pi_edit(struct gbuff *buff) {
         int max = gbuff_len(buff);
         crsr = (crsr > max)? max:crsr;
 
+        // TODO: dymanic redraw
         pi_redraw(buff, crsr);
     }
 

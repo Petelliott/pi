@@ -25,7 +25,7 @@ struct gapstr gbuff_read(struct gbuff *buff, size_t start, size_t len) {
     struct gapstr res = {0};
 
     if (len == -1) {
-        len = buff->len - (buff->gap_end - buff->gap_start);
+        len = gbuff_len(buff);
     }
 
     if (start < buff->gap_start) {
