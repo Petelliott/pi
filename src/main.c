@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
             gbuff_insert(&buff, idx, r, rbuffer);
             idx += r;
         }
+        close(fd);
     }
 
     pi_edit(&buff);
@@ -34,6 +35,7 @@ int main(int argc, char *argv[]) {
 
         write(fd, str.part1, str.len1);
         write(fd, str.part2, str.len2);
+        close(fd);
     }
 
     gbuff_free(&buff);
