@@ -4,10 +4,12 @@
 
 
 void pi_edit(struct gbuff *buff) {
+    // our position in the buffer
     int crsr = 0;
 
     init();
 
+    // redraw bcause the buffer could already contain data
     pi_redraw(buff, crsr);
 
     int c;
@@ -57,6 +59,7 @@ void pi_redraw(struct gbuff *buff, int crsr) {
         c_set = (i==crsr) || c_set;
 
         if (!c_set) {
+            //if c_set, then cx,cy are the cursors coords.
             ++cx;
             if (ch == '\n') {
                 cx = 0;
