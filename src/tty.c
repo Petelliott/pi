@@ -6,6 +6,11 @@
 #include <stdio.h>
 
 
+static inline int writestr(const char* str) {
+    return write(STDOUT_FILENO, str, strlen(str));
+}
+
+
 struct termios saved_term;
 
 
@@ -23,20 +28,17 @@ void raw_off(void) {
 
 
 void alternate_terminal(void) {
-    const char* alt = "\e[?1047h";
-    write(STDOUT_FILENO, alt, strlen(alt));
+    writestr("\e[?1047h");
 }
 
 
 void original_terminal(void) {
-    const char* orig = "\e[?1047l";
-    write(STDOUT_FILENO, orig, strlen(orig));
+    writestr("\e[?1047l");
 }
 
 
 void clear(void) {
-    const char* clear_str = "\e[2J";
-    write(STDOUT_FILENO, clear_str, strlen(clear_str));
+    writestr("\e[2J");
 }
 
 
@@ -57,15 +59,64 @@ void cleanup(void) {
 
 
 void save_cursor(void) {
-    dprintf(STDOUT_FILENO, "\e[s");
+    writestr("\e[s");
 }
 
 
 void restore_cursor(void) {
-    dprintf(STDOUT_FILENO, "\e[u");
+    writestr("\e[u");
 }
 
 
 void cursor_to(int x, int y) {
-    dprintf(STDOUT_FILENO, "\e[%i;%iH", y, x);
+    dprintf(STDOUT_FILENO, "\e[%i;%iH", y+1, x+1);
+}
+
+
+void cursor_up(void) {
+    writestr("\e[1A");
+}
+
+
+void cursor_down(void) {
+    writestr("\e[1B");
+}
+
+
+void cursor_left(void) {
+    writestr("\e[1D");
+}
+
+
+void cursor_right(void) {
+    writestr("\e[1C");
+}
+
+
+void cursor_x(int x) {
+    dprintf(STDOUT_FILENO, "\e[%iG", x+1);
+}
+
+
+void cursor_y(int y) {
+    dprintf(STDOUT_FILENO, "\e[%iD", y+1);
+}
+
+
+int uputchar(int ch) {
+    char c = (unsigned char) ch;
+    if(write(STDOUT_FILENO, &c, 1) < 0) {
+        return EOF;
+    } else {
+        return ch;
+    }
+}
+
+int ugetchar() {
+    char ch;
+    if(read(STDIN_FILENO, &ch, 1) == 1) {
+        return ch;
+    } else {
+        return EOF;
+    }
 }

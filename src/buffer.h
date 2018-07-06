@@ -29,4 +29,8 @@ char gbuff_get(struct gbuff *buff, size_t idx);
 void gbuff_add(struct gbuff *buff, size_t idx, char ch);
 void gbuff_del(struct gbuff *buff, size_t idx);
 
+inline size_t gbuff_len(const struct gbuff *buff) {
+    return buff->len - (buff->gap_end - buff->gap_start);
+}
+
 #endif

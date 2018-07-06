@@ -1,12 +1,21 @@
 #include "tty.h"
 #include <stdio.h>
-#include <signal.h>
 #include <unistd.h>
 #include "buffer.h"
-#include <string.h>
-#include <ctype.h>
+#include "editor.h"
 
 
+int main(int argc, char *argv[]) {
+    struct gbuff buff;
+    gbuff_creat(&buff, 64);
+
+    pi_edit(&buff);
+
+    gbuff_free(&buff);
+    return 0;
+}
+
+/*
 void print_gapstr(struct gapstr g) {
     if (g.len1 > 0) {
         write(STDOUT_FILENO, g.part1, g.len1);
@@ -32,17 +41,6 @@ void write_buff(const struct gbuff *buff) {
 }
 
 int main(int argc, char* argv[]) {
-    /*
-    init();
-
-    int c;
-    while ((c=getchar()) != 3) {
-        printf("%i\n", c);
-    }
-
-    cleanup();
-    */
-
     struct gbuff buff;
     gbuff_creat(&buff, 8);
 
@@ -69,3 +67,4 @@ int main(int argc, char* argv[]) {
     gbuff_free(&buff);
     return 0;
 }
+*/

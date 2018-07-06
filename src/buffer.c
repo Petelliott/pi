@@ -102,8 +102,15 @@ void gbuff_erase(struct gbuff *buff, size_t start, size_t len) {
     }
 }
 
-//TODO: gbuff_get()
 
+char gbuff_get(struct gbuff *buff, size_t idx) {
+    if (idx < buff->gap_start) {
+        return buff->base[idx];
+    } else if (idx < gbuff_len(buff)) {
+        return buff->base[idx + (buff->gap_end - buff->gap_start)];
+    }
+    return '\0';
+}
 
 void gbuff_add(struct gbuff *buff, size_t idx, char ch) {
     //TODO: specialized function

@@ -1,6 +1,6 @@
 CC=gcc -Wall -O2
 
-OBJS=bin/main.o bin/tty.o bin/buffer.o
+OBJS=bin/main.o bin/tty.o bin/buffer.o bin/editor.o
 
 pi: $(OBJS)
 	$(CC) $^ -o $@
