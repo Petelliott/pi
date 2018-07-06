@@ -13,6 +13,7 @@ static inline int writestr(const char* str) {
 }
 
 
+// saved by raw_on() and restored by raw_off()
 struct termios saved_term;
 
 

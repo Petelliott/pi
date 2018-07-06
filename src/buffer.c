@@ -4,6 +4,7 @@
 
 
 void gbuff_creat(struct gbuff *buff, size_t gap_size) {
+    //TODO: consider initializing the buffer with len 0
     buff->base = malloc(gap_size);
     buff->len = gap_size;
     buff->gap_start = 0;
@@ -53,6 +54,7 @@ struct gapstr gbuff_read(struct gbuff *buff, size_t start, size_t len) {
 }
 
 
+/* moves the gap to loc */
 static void gap_to(struct gbuff *buff, size_t loc) {
     if (loc < buff->gap_start) {
         size_t len = buff->gap_start - loc;
@@ -71,12 +73,16 @@ static void gap_to(struct gbuff *buff, size_t loc) {
         buff->gap_start = loc;
         buff->gap_end   += len;
     }
+    // if neither if runs, the gap was already
+    // where it needed to be.
 }
 
 
 void gbuff_insert(struct gbuff *buff, size_t start, size_t len, const char *src) {
     size_t gap_len = buff->gap_end - buff->gap_start;
     if (len > gap_len) {
+        // reallocate the buffer to fit our string, and have
+        // gap_size extra space
         size_t extra_len = len + (buff->gap_size - gap_len);
         gap_to(buff, buff->len - gap_len);
         buff->base = realloc(buff->base, buff->len + extra_len);
@@ -93,6 +99,7 @@ void gbuff_insert(struct gbuff *buff, size_t start, size_t len, const char *src)
 
 
 void gbuff_erase(struct gbuff *buff, size_t start, size_t len) {
+    // if we are erasing next to the gap, expand the gap
     if (start <= buff->gap_start && start+len >= buff->gap_start) {
         buff->gap_end = (start + len) + (buff->gap_end - buff->gap_start);
         buff->gap_start = start;
