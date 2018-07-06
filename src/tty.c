@@ -6,6 +6,8 @@
 #include <stdio.h>
 
 
+/* writes a null-terminated string to stdout
+   unbuffered */
 static inline int writestr(const char* str) {
     return write(STDOUT_FILENO, str, strlen(str));
 }
