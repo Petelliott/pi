@@ -101,10 +101,9 @@ void up_line(struct gbuff *buff, int *crsr) {
         }
     }
 
-    ssize_t max = (*crsr - l_len - 1) - p_line;
+    ssize_t max = *crsr - l_len;
     ssize_t pos = p_line + l_len;
     *crsr = (pos > max)? max:pos;
-
 }
 
 
