@@ -16,11 +16,19 @@ void pi_edit(struct gbuff *buff) {
     while ((c=ugetchar()) != 3) {
         if (c == '\e') {
             ugetchar(); // '['
-            c = ugetchar();
-            if (c == 'C') {
-                ++crsr;
-            } else if (c == 'D') {
-                --crsr;
+            switch (ugetchar()) {
+                case 'A':
+                    up_line(buff, &crsr);
+                    break;
+                case 'B':
+                    down_line(buff, &crsr);
+                    break;
+                case 'C':
+                    ++crsr;
+                    break;
+                case 'D':
+                    --crsr;
+                    break;
             }
         } else if (c == 127) {
             if (crsr > 0) {
@@ -68,4 +76,61 @@ void pi_redraw(struct gbuff *buff, int crsr) {
         }
     }
     cursor_to(cx, cy);
+}
+
+
+//TODO: improve
+void up_line(struct gbuff *buff, int *crsr) {
+    ssize_t l_len = -1;
+    ssize_t l_strt;
+    for (l_strt = *crsr-1; l_strt >= 0; --l_strt) {
+        if (gbuff_get(buff, l_strt) == '\n') {
+            l_len = *crsr - l_strt;
+            break;
+        }
+    }
+
+    if (l_len == -1) {
+        return;
+    }
+
+    ssize_t p_line;
+    for (p_line = *crsr - l_len - 1; p_line >= 0; --p_line) {
+        if (gbuff_get(buff, p_line) == '\n') {
+            break;
+        }
+    }
+
+    ssize_t max = (*crsr - l_len - 1) - p_line;
+    ssize_t pos = p_line + l_len;
+    *crsr = (pos > max)? max:pos;
+
+}
+
+
+//TODO: improve
+void down_line(struct gbuff *buff, int *crsr) {
+    ssize_t l_strt;
+    for (l_strt = *crsr-1; l_strt >= 0; --l_strt) {
+        if (gbuff_get(buff, l_strt) == '\n') {
+            break;
+        }
+    }
+    ssize_t l_len = *crsr - l_strt - 1;
+
+    ssize_t p_start;
+    for (p_start = *crsr; p_start < gbuff_len(buff); ++p_start) {
+        if (gbuff_get(buff, p_start) == '\n') {
+            ++p_start;
+            break;
+        }
+    }
+
+    ssize_t i;
+    for (i = 0; i < l_len; ++i) {
+        if (gbuff_get(buff, i + p_start) == '\n') {
+            break;
+        }
+    }
+    *crsr = p_start + i;
 }
