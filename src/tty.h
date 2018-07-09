@@ -47,7 +47,4 @@ int ugetchar(void);
 int term_width(void);
 int term_height(void);
 
-void set_resize_func(void (*func)(void));
-void clear_resize_func(void);
-
 #endif

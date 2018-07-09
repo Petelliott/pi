@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
-#include <signal.h>
 
 
 /* writes a null-terminated string to stdout
@@ -46,35 +45,18 @@ void clear(void) {
     writestr("\e[2J");
 }
 
+
 int t_width;
 int t_height;
-void (*resize_func)(void) = NULL;
 
-
-static void resize_handler(int sig) {
+static void refresh_term_size() {
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
     t_width = w.ws_col;
     t_height = w.ws_row;
-
-    if (resize_func != NULL) {
-        (*resize_func)();
-    }
 }
 
-
-void set_resize_func(void (*func)(void)) {
-    resize_func = func;
-}
-
-
-void clear_resize_func(void) {
-    resize_func = NULL;
-}
-
-
-struct sigaction old_action;
 
 void init(void) {
     raw_on();
@@ -83,20 +65,11 @@ void init(void) {
     save_cursor();
     cursor_to(0, 0);
 
-    resize_handler(SIGWINCH);
-
-    struct sigaction new_action;
-    new_action.sa_handler = resize_handler;
-    sigemptyset (&new_action.sa_mask);
-    new_action.sa_flags = 0;
-
-    sigaction(SIGWINCH, &new_action, &old_action);
+    refresh_term_size();
 }
 
 
 void cleanup(void) {
-    sigaction(SIGWINCH, &old_action, NULL);
-    clear_resize_func();
     restore_cursor();
     original_terminal();
     raw_off();
@@ -166,8 +139,6 @@ int ugetchar(void) {
         return EOF;
     }
 }
-
-
 
 
 int term_width(void) {
