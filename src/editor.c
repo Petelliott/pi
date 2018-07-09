@@ -6,11 +6,13 @@
 void pi_edit(struct gbuff *buff) {
     // our position in the buffer
     int crsr = 0;
+    int row = 0;
+    int draw_row = 0;
 
     init();
 
     // redraw bcause the buffer could already contain data
-    pi_redraw(buff, crsr);
+    pi_redraw(buff, crsr, draw_row);
 
     int c;
     while ((c=ugetchar()) != 3) {
@@ -18,26 +20,48 @@ void pi_edit(struct gbuff *buff) {
             ugetchar(); // '['
             switch (ugetchar()) {
                 case 'A':
-                    up_line(buff, &crsr);
+                    if (up_line(buff, &crsr)) {
+                        row--;
+                    }
                     break;
                 case 'B':
-                    down_line(buff, &crsr);
+                    if (down_line(buff, &crsr)) {
+                        row++;
+                    }
                     break;
                 case 'C':
+                    if (gbuff_get(buff, crsr) == '\n') {
+                        ++row;
+                    }
                     ++crsr;
                     break;
                 case 'D':
                     --crsr;
+                    if (gbuff_get(buff, crsr) == '\n') {
+                        --row;
+                    }
                     break;
             }
         } else if (c == 127) {
             if (crsr > 0) {
+                if (gbuff_get(buff, crsr-1) == '\n') {
+                    --row;
+                }
                 gbuff_del(buff, crsr-1);
                 --crsr;
             }
         } else {
             gbuff_add(buff, crsr, c);
             ++crsr;
+            if (c == '\n') {
+                ++row;
+            }
+        }
+
+        if (row-draw_row >= term_height()) {
+            ++draw_row;
+        } else if (row-draw_row < 0) {
+            --draw_row;
         }
 
         crsr = (crsr < 0)? 0:crsr;
@@ -45,14 +69,14 @@ void pi_edit(struct gbuff *buff) {
         crsr = (crsr > max)? max:crsr;
 
         // TODO: dymanic redraw
-        pi_redraw(buff, crsr);
+        pi_redraw(buff, crsr, draw_row);
     }
 
     cleanup();
 }
 
 
-void pi_redraw(struct gbuff *buff, int crsr) {
+void pi_redraw(struct gbuff *buff, int crsr, int row) {
     clear();
     cursor_to(0, 0);
 
@@ -60,9 +84,19 @@ void pi_redraw(struct gbuff *buff, int crsr) {
     int cy = 0;
     int c_set = 0;
 
+    int curr_row = 0;
+
     for (size_t i = 0; i < gbuff_len(buff); ++i) {
         char ch = gbuff_get(buff, i);
-        uputchar(ch);
+
+        if (ch == '\n') {
+            ++curr_row;
+        }
+
+        //TODO: get screen size
+        if (curr_row >= row && curr_row < (row + term_height())) {
+            uputchar(ch);
+        }
 
         c_set = (i==crsr) || c_set;
 
@@ -75,12 +109,12 @@ void pi_redraw(struct gbuff *buff, int crsr) {
             }
         }
     }
-    cursor_to(cx, cy);
+    cursor_to(cx, cy - row);
 }
 
 
 //TODO: improve
-void up_line(struct gbuff *buff, int *crsr) {
+int up_line(struct gbuff *buff, int *crsr) {
     ssize_t l_len = -1;
     ssize_t l_strt;
     for (l_strt = *crsr-1; l_strt >= 0; --l_strt) {
@@ -91,7 +125,7 @@ void up_line(struct gbuff *buff, int *crsr) {
     }
 
     if (l_len == -1) {
-        return;
+        return 0;
     }
 
     ssize_t p_line;
@@ -104,11 +138,13 @@ void up_line(struct gbuff *buff, int *crsr) {
     ssize_t max = *crsr - l_len;
     ssize_t pos = p_line + l_len;
     *crsr = (pos > max)? max:pos;
+
+    return 1;
 }
 
 
 //TODO: improve
-void down_line(struct gbuff *buff, int *crsr) {
+int down_line(struct gbuff *buff, int *crsr) {
     ssize_t l_strt;
     for (l_strt = *crsr-1; l_strt >= 0; --l_strt) {
         if (gbuff_get(buff, l_strt) == '\n') {
@@ -118,11 +154,17 @@ void down_line(struct gbuff *buff, int *crsr) {
     ssize_t l_len = *crsr - l_strt - 1;
 
     ssize_t p_start;
+    int end = 1;
     for (p_start = *crsr; p_start < gbuff_len(buff); ++p_start) {
         if (gbuff_get(buff, p_start) == '\n') {
             ++p_start;
+            end = 0;
             break;
         }
+    }
+
+    if (end) {
+        return 0;
     }
 
     ssize_t i;
@@ -132,4 +174,6 @@ void down_line(struct gbuff *buff, int *crsr) {
         }
     }
     *crsr = p_start + i;
+
+    return 1;
 }

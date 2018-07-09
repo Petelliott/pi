@@ -1,6 +1,7 @@
 #ifndef TTY_H
 #define TTY_H
 
+
 /* disables echo, cannonical mode, and signals */
 void raw_on(void);
 
@@ -40,6 +41,13 @@ void cursor_right(void);
 
 /* unbuffered versions of putchar() and getchar() */
 int uputchar(int ch);
-int ugetchar();
+int ugetchar(void);
+
+/* get the terminal width and height */
+int term_width(void);
+int term_height(void);
+
+void set_resize_func(void (*func)(void));
+void clear_resize_func(void);
 
 #endif
