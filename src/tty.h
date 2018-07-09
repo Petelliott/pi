@@ -1,6 +1,7 @@
 #ifndef TTY_H
 #define TTY_H
 
+#define TTY_BUFF_SIZE 1024
 
 /* disables echo, cannonical mode, and signals */
 void raw_on(void);
@@ -46,5 +47,12 @@ int ugetchar(void);
 /* get the terminal width and height */
 int term_width(void);
 int term_height(void);
+
+/* buffered io */
+void tputchar(int ch);
+void twritestr(const char *str);
+void tprintf(const char *fmt, ...);
+
+void refresh(void);
 
 #endif

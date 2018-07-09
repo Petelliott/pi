@@ -95,7 +95,7 @@ void pi_redraw(struct gbuff *buff, int crsr, int row) {
 
         //TODO: get screen size
         if (curr_row >= row && curr_row < (row + term_height())) {
-            uputchar(ch);
+            tputchar(ch);
         }
 
         c_set = (i==crsr) || c_set;
@@ -110,6 +110,7 @@ void pi_redraw(struct gbuff *buff, int crsr, int row) {
         }
     }
     cursor_to(cx, cy - row);
+    refresh();
 }
 
 

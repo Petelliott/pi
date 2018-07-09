@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "tty.h"
 #include <termios.h>
 #include <unistd.h>
@@ -5,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
+#include <stdarg.h>
 
 
 /* writes a null-terminated string to stdout
@@ -32,17 +34,17 @@ void raw_off(void) {
 
 
 void alternate_terminal(void) {
-    writestr("\e[?1047h");
+    twritestr("\e[?1047h");
 }
 
 
 void original_terminal(void) {
-    writestr("\e[?1047l");
+    twritestr("\e[?1047l");
 }
 
 
 void clear(void) {
-    writestr("\e[2J");
+    twritestr("\e[2J");
 }
 
 
@@ -66,6 +68,7 @@ void init(void) {
     cursor_to(0, 0);
 
     refresh_term_size();
+    refresh();
 }
 
 
@@ -73,51 +76,52 @@ void cleanup(void) {
     restore_cursor();
     original_terminal();
     raw_off();
+    refresh();
 }
 
 
 void save_cursor(void) {
-    writestr("\e[s");
+    twritestr("\e[s");
 }
 
 
 void restore_cursor(void) {
-    writestr("\e[u");
+    twritestr("\e[u");
 }
 
 
 void cursor_to(int x, int y) {
-    dprintf(STDOUT_FILENO, "\e[%i;%iH", y+1, x+1);
+    tprintf("\e[%i;%iH", y+1, x+1);
 }
 
 
 void cursor_up(void) {
-    writestr("\e[1A");
+    twritestr("\e[1A");
 }
 
 
 void cursor_down(void) {
-    writestr("\e[1B");
+    twritestr("\e[1B");
 }
 
 
 void cursor_left(void) {
-    writestr("\e[1D");
+    twritestr("\e[1D");
 }
 
 
 void cursor_right(void) {
-    writestr("\e[1C");
+    twritestr("\e[1C");
 }
 
 
 void cursor_x(int x) {
-    dprintf(STDOUT_FILENO, "\e[%iG", x+1);
+    tprintf("\e[%iG", x+1);
 }
 
 
 void cursor_y(int y) {
-    dprintf(STDOUT_FILENO, "\e[%iD", y+1);
+    tprintf("\e[%iD", y+1);
 }
 
 
@@ -148,4 +152,51 @@ int term_width(void) {
 
 int term_height(void) {
     return t_height;
+}
+
+
+char tty_buffer[TTY_BUFF_SIZE];
+size_t buff_idx = 0;
+
+void tputchar(int ch) {
+    if (buff_idx >= TTY_BUFF_SIZE) {
+        refresh();
+    }
+    tty_buffer[buff_idx] = (char) ch;
+    ++buff_idx;
+}
+
+
+void twritestr(const char *str) {
+    size_t len = strlen(str);
+    if (len >= TTY_BUFF_SIZE) {
+        refresh();
+        write(STDOUT_FILENO, str, len);
+        return;
+    }
+
+    if (buff_idx + len >= TTY_BUFF_SIZE) {
+        refresh();
+    }
+    memcpy(tty_buffer+buff_idx, str, len);
+    buff_idx += len;
+}
+
+
+void tprintf(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+    char *strp;
+    vasprintf(&strp, fmt, args);
+    twritestr(strp);
+    free(strp);
+
+    va_end(args);
+}
+
+
+void refresh(void) {
+    write(STDOUT_FILENO, tty_buffer, buff_idx);
+    buff_idx = 0;
 }
