@@ -16,6 +16,7 @@ void pi_edit(struct gbuff *buff) {
 
     int c;
     while ((c=ugetchar()) != 3) {
+        int redraw_flag = 0;
         if (c == '\e') {
             ugetchar(); // '['
             switch (ugetchar()) {
@@ -49,6 +50,7 @@ void pi_edit(struct gbuff *buff) {
                 }
                 gbuff_del(buff, crsr-1);
                 --crsr;
+                redraw_flag = 1;
             }
         } else {
             gbuff_add(buff, crsr, c);
@@ -56,20 +58,27 @@ void pi_edit(struct gbuff *buff) {
             if (c == '\n') {
                 ++row;
             }
+            redraw_flag = 1;
         }
 
         if (row-draw_row >= term_height()) {
             ++draw_row;
+            redraw_flag = 1;
         } else if (row-draw_row < 0) {
             --draw_row;
+            redraw_flag = 1;
         }
 
         crsr = (crsr < 0)? 0:crsr;
         int max = gbuff_len(buff);
         crsr = (crsr > max)? max:crsr;
 
-        // TODO: dymanic redraw
-        pi_redraw(buff, crsr, draw_row);
+        // TODO: better dymanic redraw
+        if (redraw_flag) {
+            pi_redraw(buff, crsr, draw_row);
+        } else {
+            pi_cursor(buff, crsr, draw_row);
+        }
     }
 
     cleanup();
@@ -93,7 +102,6 @@ void pi_redraw(struct gbuff *buff, int crsr, int row) {
             ++curr_row;
         }
 
-        //TODO: get screen size
         if (curr_row >= row && curr_row < (row + term_height())) {
             tputchar(ch);
         }
@@ -107,6 +115,28 @@ void pi_redraw(struct gbuff *buff, int crsr, int row) {
                 cx = 0;
                 ++cy;
             }
+        }
+    }
+    cursor_to(cx, cy - row);
+    refresh();
+}
+
+
+void pi_cursor(struct gbuff *buff, int crsr, int row) {
+    int cx = 0;
+    int cy = 0;
+
+    for (size_t i = 0; i < gbuff_len(buff); ++i) {
+        char ch = gbuff_get(buff, i);
+
+        if (i == crsr) {
+            break;
+        }
+
+        ++cx;
+        if (ch == '\n') {
+            cx = 0;
+            ++cy;
         }
     }
     cursor_to(cx, cy - row);
