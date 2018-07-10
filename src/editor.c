@@ -98,12 +98,14 @@ void pi_redraw(struct gbuff *buff, int crsr, int row) {
     for (size_t i = 0; i < gbuff_len(buff); ++i) {
         char ch = gbuff_get(buff, i);
 
-        if (ch == '\n') {
-            ++curr_row;
+        int in_screen = curr_row >= row && curr_row < (row + term_height()) - 1;
+        int last_line = curr_row == (row + term_height()) - 1 && ch != '\n';
+        if (in_screen || last_line) {
+            tputchar(ch);
         }
 
-        if (curr_row >= row && curr_row < (row + term_height())) {
-            tputchar(ch);
+        if (ch == '\n') {
+            ++curr_row;
         }
 
         c_set = (i==crsr) || c_set;
