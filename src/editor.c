@@ -106,6 +106,10 @@ void pi_redraw(struct gbuff *buff, int crsr, int row) {
 
         if (ch == '\n') {
             ++curr_row;
+            // exit early when we are past the screen
+            if (curr_row >= row + term_height()) {
+                break;
+            }
         }
 
         c_set = (i==crsr) || c_set;
