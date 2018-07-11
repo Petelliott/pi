@@ -19,45 +19,12 @@ void pi_edit(struct gbuff *buff) {
         int redraw_flag = 0;
         if (c == '\e') {
             ugetchar(); // '['
-            switch (ugetchar()) {
-                case 'A':
-                    if (up_line(buff, &crsr)) {
-                        row--;
-                    }
-                    break;
-                case 'B':
-                    if (down_line(buff, &crsr)) {
-                        row++;
-                    }
-                    break;
-                case 'C':
-                    if (gbuff_get(buff, crsr) == '\n') {
-                        ++row;
-                    }
-                    ++crsr;
-                    break;
-                case 'D':
-                    --crsr;
-                    if (gbuff_get(buff, crsr) == '\n') {
-                        --row;
-                    }
-                    break;
-            }
+            pi_arrow_key(buff, &crsr, &row, ugetchar());
         } else if (c == 127) {
-            if (crsr > 0) {
-                if (gbuff_get(buff, crsr-1) == '\n') {
-                    --row;
-                }
-                gbuff_del(buff, crsr-1);
-                --crsr;
-                redraw_flag = 1;
-            }
+            pi_backspace(buff, &crsr, &row);
+            redraw_flag = 1;
         } else {
-            gbuff_add(buff, crsr, c);
-            ++crsr;
-            if (c == '\n') {
-                ++row;
-            }
+            pi_insert(buff, &crsr, &row, c);
             redraw_flag = 1;
         }
 
@@ -82,6 +49,55 @@ void pi_edit(struct gbuff *buff) {
     }
 
     cleanup();
+}
+
+
+void pi_arrow_key(struct gbuff *buff, int *crsr, int *row, char op) {
+    switch (op) {
+        case 'A':
+            if (up_line(buff, crsr)) {
+                (*row)--;
+            }
+            break;
+        case 'B':
+            if (down_line(buff, crsr)) {
+                (*row)++;
+            }
+            break;
+        case 'C':
+            if (gbuff_get(buff, *crsr) == '\n') {
+                ++(*row);
+            }
+            ++(*crsr);
+            break;
+        case 'D':
+            --(*crsr);
+            if (gbuff_get(buff, *crsr) == '\n') {
+                --(*row);
+            }
+            break;
+    }
+}
+
+
+
+void pi_backspace(struct gbuff *buff, int *crsr, int *row) {
+    if (crsr > 0) {
+        if (gbuff_get(buff, *crsr-1) == '\n') {
+            --(*row);
+        }
+        gbuff_del(buff, *crsr-1);
+        --(*crsr);
+    }
+}
+
+
+void pi_insert(struct gbuff *buff, int *crsr, int *row, char c) {
+    gbuff_add(buff, *crsr, c);
+    ++(*crsr);
+    if (c == '\n') {
+        ++(*row);
+    }
 }
 
 

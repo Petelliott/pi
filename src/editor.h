@@ -7,8 +7,13 @@
    buff. */
 void pi_edit(struct gbuff *buff);
 
+void pi_arrow_key(struct gbuff *buff, int *crsr, int *row, char op);
+void pi_backspace(struct gbuff *buff, int *crsr, int *row);
+void pi_insert(struct gbuff *buff, int *crsr, int *row, char c);
+
 /* redraws the editor state */
 void pi_redraw(struct gbuff *buff, int crsr, int row);
+/* moves the cursor to the desired position */
 void pi_cursor(struct gbuff *buff, int crsr, int row);
 
 int up_line(struct gbuff *buff, int *crsr);
