@@ -19,6 +19,8 @@ void original_terminal(void);
 /* clear the terminal */
 void clear(void);
 
+void refresh_term_size(void);
+
 /* sets up the environment for fullscreen tty programs */
 void init(void);
 

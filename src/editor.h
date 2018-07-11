@@ -7,6 +7,9 @@
    buff. */
 void pi_edit(struct gbuff *buff);
 
+/* performs and applies one input operation */
+void pi_input(struct gbuff *buff, int *crsr, int *row, int *draw_row, char c);
+
 void pi_arrow_key(struct gbuff *buff, int *crsr, int *row, char op);
 void pi_backspace(struct gbuff *buff, int *crsr, int *row);
 void pi_insert(struct gbuff *buff, int *crsr, int *row, char c);

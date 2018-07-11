@@ -51,7 +51,7 @@ void clear(void) {
 int t_width;
 int t_height;
 
-static void refresh_term_size() {
+void refresh_term_size(void) {
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
@@ -61,10 +61,10 @@ static void refresh_term_size() {
 
 
 void init(void) {
+    save_cursor();
     raw_on();
     alternate_terminal();
     clear();
-    save_cursor();
     cursor_to(0, 0);
 
     refresh_term_size();
@@ -73,9 +73,9 @@ void init(void) {
 
 
 void cleanup(void) {
-    restore_cursor();
     original_terminal();
     raw_off();
+    restore_cursor();
     refresh();
 }
 
